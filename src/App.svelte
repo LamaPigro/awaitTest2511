@@ -1,4 +1,6 @@
 <script>
+  import {map} from "./lib/store"
+  
   async function GetPowerPlant() {
     const response = await fetch("https://raw.githubusercontent.com/cristianst85/GeoNuclearData/master/data/json/denormalized/nuclear_power_plants.json") 
 
@@ -9,19 +11,37 @@
       throw new Error(error)
     }
   }
+
+  function addMap() {
+    //console.log("la mappa quella vera")
+    const viewBtn = document.getElementById("viewBtn")
+
+    const mapComponent = L.map('map').setView([51.505, -0.09], 13);
+    
+    viewBtn.parentNode.removeChild(viewBtn)
+    map.set(mapComponent)
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(mapComponent);
+  }
+  
 </script>
 
 {#await GetPowerPlant()}
   <div>Loading...</div>
 {:then plants}
-  <div class=flex>
-    <div class=flex-1>
-      {#each plants as plant}
-        <pre> {plant.Id}. {plant.Name} </pre>
-      {/each}
+  <div class="flex">
+    <div class="flex-1">
+      <p> Power Plants</p>
+      <button class="btn btn-primary" on:click={addMap} id="viewBtn">VIEW MAP</button>
+      <div id="map"></div>
     </div>
-    <div class=flex-2>
-      <button class="btn btn-primary">Button</button>
+    <div class="flex-1">
+      {#each plants as plant}
+        <pre> {plant.Id}. {plant.Name}, {plant.Country} </pre>
+      {/each}
     </div>
   </div>
   
